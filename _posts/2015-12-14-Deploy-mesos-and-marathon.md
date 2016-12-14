@@ -31,15 +31,18 @@ keywords: [docker,云计算,mesos]
 >Marathon版本：0.11.0  
 >Docker版本：1.7.1
 
-- 关闭selinux（重启）  
+- 关闭selinux（重启）
+
 ```bash
 sed -i 's/^SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 ```
-- 关闭防火墙  
+
+- 关闭防火墙
+
 ```bash
 systemctl disable firewalld.service
 ```
-- 清空iptables  
+- 清空iptables
 ```bash
 iptables -F
 ```
