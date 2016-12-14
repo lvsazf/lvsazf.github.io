@@ -5,7 +5,7 @@ baseurl:
 url: http://cloudnil.com
 date_format: "ordinal"
 title: VF的部落格
-subtitle: "技术无止境,初心不忘..."
+subtitle: "Nothing is impossible..."
 description: "技术无止境,初心不忘..."
 keywords: VF,可不勺子
 favicon: /favicon.ico
@@ -17,11 +17,11 @@ side_bar_repo_limit: 5
 # ---------------- #
 #      Author      #
 # ---------------- #
-author: Zhuang Ma
-organization: Sogou, Inc.
-organization_url: https://www.sogou.com
+author: VF
+organization: Cloudx5, Inc.
+organization_url: https://www.cloudx5.com
 location: Beijing, China
-email: chumpma@gmail.com
+email: cloudnil@126.com
 
 # ---------------- #
 #    Navigation    #
