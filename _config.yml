@@ -38,7 +38,7 @@ navs:
   -
     href: /wiki/
     label: 维基
-    
+
   -
     href: /open-source/
     label: 开源
@@ -117,4 +117,4 @@ google:
 # ---------------- #
 skill_software_keywords: [Linux, Docker, Shell, Java, Golang]
 # skill_mobile_app_keywords: [Android, Reverse Engineering]
-skill_windows_keywords: [Win32 SDK, DuiLib, WTL, COM, WinDbg]
+#skill_windows_keywords: [Win32 SDK, DuiLib, WTL, COM, WinDbg]
