@@ -42,15 +42,21 @@ sed -i 's/^SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 ```bash
 systemctl disable firewalld.service
 ```
+
 - 清空iptables
+
 ```bash
 iptables -F
 ```
-- 升级centos包：  
+
+- 升级centos包
+
 ```bash
 yum update
 ```
-- 安装mesosphere仓库  
+
+- 安装mesosphere仓库
+
 ```bash
 rpm -Uvh http://repos.mesosphere.com/el/7/noarch/RPMS/mesosphere-el-repo-7-1.noarch.rpm
 yum clean all
