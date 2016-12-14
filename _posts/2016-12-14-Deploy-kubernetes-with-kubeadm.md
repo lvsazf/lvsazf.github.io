@@ -8,7 +8,7 @@ keywords: [docker,云计算,kubernetes]
 
 >Kubernetes 1.5.0刚刚发布，添加了众多的新特性，我们的云平台也计划从Mesos和Rancher迁移到kubernetes，所以迫不及待地想尝试一下，Google出品，必属精品，无奈GFW的层层阻挡，让原本简单的部署步骤变得异常复杂，所以写下此文，供各位参考。
 
-###1. 环境准备
+### 1. 环境准备
 准备了三台机器作安装测试工作，机器信息如下: 
 
 |      IP      |   Name   |    Role    |           OS           |
