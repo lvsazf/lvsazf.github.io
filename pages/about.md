@@ -12,10 +12,6 @@ permalink: /about/
 喜爱游泳、看片、打游戏、敲代码，属于工薪阶层的苦逼北漂一族。
 知识面虽广，却不一一精通。有技术危机感及强迫症，常常陷于无法学会所有IT技术的泥沼不能自拔。
 
-联系方式
-- QQ：`76254081` 
-- Email：`cloudnil@126.com`
-
 ## 坚信
 
 * 坚持=成功
@@ -30,7 +26,7 @@ permalink: /about/
 * 微博: [@可不勺子](http://weibo.com/shaozi1985)
 * CSDN: [VF@CSDN](http://blog.csdn.net/tiger435)
 
-## Skill Keywords
+## 擅长技能
 
 #### Software Engineer Keywords
 <div class="btn-inline">
@@ -39,7 +35,7 @@ permalink: /about/
     {% endfor %}
 </div>
 
-#### Mobile Developer Keywords
+<!-- #### Mobile Developer Keywords
 <div class="btn-inline">
     {% for keyword in site.skill_mobile_app_keywords %}
     <button class="btn btn-outline" type="button">{{ keyword }}</button>
@@ -51,4 +47,4 @@ permalink: /about/
     {% for keyword in site.skill_windows_keywords %}
     <button class="btn btn-outline" type="button">{{ keyword }}</button>
     {% endfor %}
-</div>
+</div> -->
