@@ -9,6 +9,7 @@ keywords: [docker,云计算,mesos]
 >基于Centos7.2 Mesos+Marathon集群部署，服务发现使用bamboo组件。
 
 ###1.整体架构
+
 |     节点名称    | 节点类型 |      IP      |            组件            |
 | --------------- | -------- | ------------ | -------------------------- |
 | master101       | master   | 192.168.2.71 | mesos、marathon、zookpeer  |
@@ -23,6 +24,7 @@ keywords: [docker,云计算,mesos]
 >说明：集群模式部署，master节点应该是奇数，最少为3个节点，便于leader选举
 
 ###2.环境准备
+
 >操作系统：Centos7.2 Minimal  
 >Mesos版本：0.24.1  
 >Marathon版本：0.11.0  
