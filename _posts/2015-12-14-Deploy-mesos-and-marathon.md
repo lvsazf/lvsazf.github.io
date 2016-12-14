@@ -58,8 +58,7 @@ yum makecache
 
 ### 3 Master节点安装
 
-#### 3.1 组件安装
-
+#### 3.1 组件安装  
 ```bash
 yum -y install mesos marathon mesosphere-zookeeper
 ```
