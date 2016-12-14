@@ -8,7 +8,7 @@ keywords: [docker,云计算,mesos]
 
 >基于Centos7.2 Mesos+Marathon集群部署，服务发现使用bamboo组件。
 
-### 1.整体架构
+### 1 整体架构
 
 |     节点名称    | 节点类型 |      IP      |            组件            |
 | --------------- | -------- | ------------ | -------------------------- |
@@ -24,7 +24,7 @@ keywords: [docker,云计算,mesos]
 
 >说明：集群模式部署，master节点应该是奇数，最少为3个节点，便于leader选举
 
-### 2.环境准备
+### 2 环境准备
 
 >操作系统：Centos7.2 Minimal  
 >Mesos版本：0.24.1  
@@ -62,6 +62,7 @@ yum makecache
 ```bash
 yum -y install mesos marathon mesosphere-zookeeper
 ```
+
 #### 3.2 配置zookeeper
 
 ```bash
@@ -87,7 +88,7 @@ server.3=192.168.2.73:2888:3888
 systemctl start zookeeper
 ```
 
-#### 配置mesos
+#### 3.3 配置mesos
 
 配置mesos使用zookeeper
 
@@ -124,7 +125,7 @@ systemctl stop mesos-slave.service && systemctl disable mesos-slave.service
 systemctl restart mesos-master.service
 ```
 
-#### 配置marathon
+#### 3.4 配置marathon
 
 ```bash
 mkdir -p /etc/marathon/conf
@@ -137,7 +138,7 @@ cp /etc/mesos-master/hostname /etc/marathon/conf
 echo http_callback > /etc/marathon/conf/event_subscriber
 ```
 
-#### 配置marathon使用zookeeper（可选）
+#### 3.5 配置marathon使用zookeeper（可选）
 
 默认情况下marathon会自动获取本机的mesos的zk配置，并且会根据zookeeper的配置。为自己添加marathon的配置同步，手动添加以下配置文件是为了便于管理，同样，其他的marathon参数，都可以以参数名称命名一个文件，存放在/etc/marathon/conf目录下，然后在其中设置参数值的形式为marathon作进一步配置
 提示：在本例中，默认的marathon启动命令为：
@@ -222,21 +223,21 @@ chkconfig mesos-master on
 chkconfig marathon on
 ```
 
-### 4.Salve节点安装
+### 4 Salve节点安装
 
-#### 组件安装
+#### 4.1 组件安装
 
 ```bash
 yum -y install mesos docker
 ```
 
-#### 配置mesos，与master一致
+#### 4.2 配置mesos，与master一致
 
 ```bash
 echo zk://192.168.2.71:2181,192.168.2.72:2181,192.168.2.73:2181/mesos > /etc/mesos/zk
 ```
 
-#### 配置mesos-slave
+#### 4.3 配置mesos-slave
 
 ```bash
 #slave101
@@ -258,7 +259,7 @@ echo 192.168.2.63 > /etc/mesos-slave/ip
 
 >hostname可以不配置，默认使用机器名
 
-#### 配置mesos-slave使用docker容器
+#### 4.4 配置mesos-slave使用docker容器
 
 ```bash
 echo 'docker,mesos' > /etc/mesos-slave/containerizers
@@ -273,7 +274,7 @@ sed -i "s/^OPTIONS='--selinux-enabled'/OPTIONS='--selinux-enabled --insecure-reg
 
 >说明：`192.168.2.98:5000`是本环境中部署的docker registry仓库地址
 
-#### 启动服务
+#### 4.5 启动服务
 
 停用slave节点上的mesos-master服务
 
@@ -295,14 +296,14 @@ chkconfig docker on
 chkconfig mesos-slave on
 ```
 
-### 5.Mesos简单使用
+### 5 Mesos简单使用
 
-#### Mesos控制台
+#### 5.1 Mesos控制台
 
 Mesos的控制台地址：`http://192.168.2.71:5050`
 Mesos的控制台上可以查看的当前的资源实用情况、Slave节点状态、当前运行的Task、完成的Task、可以切换到Framework（如Marathon）或者Slave。
 
-#### Marathon控制台
+#### 5.2 Marathon控制台
 
 Marathon控制台地址：`http://192.168.2.71:8080`
 Marathon控制台上可以查看当前应用的运行状态，可以发布新应用、调整当前应用的实例数等。  
@@ -349,9 +350,9 @@ inky.json文件示例
 }
 ```
 
-### 6.Docker私有仓库
+### 6 Docker私有仓库
 
-#### 仓库搭建
+#### 6.1 仓库搭建
 
 方式一：通过docker image构建
 
@@ -375,7 +376,7 @@ python-pip install docker-registry
 
 `gunicorn -c contrib/gunicorn.py docker_registry.wsgi:application`
 
-#### 上传、下载镜像
+#### 6.2 上传、下载镜像
 
 1. 从公有创库中获取基础镜像（docker pull）
 2. 对基础镜像做出修改（docker commit）
@@ -383,9 +384,9 @@ python-pip install docker-registry
 4. 推送镜像到私有仓库（docker push）
 5. 获取私有仓库镜像（docker pull）
 
-### 7.负载均衡与服务发现
+### 7 负载均衡与服务发现
 
-#### Haproxy组件
+#### 7.1 Haproxy组件
 
 ```bash
 yum install -y haproxy
@@ -412,7 +413,7 @@ chkconfig haproxy on
 systemctl restart haproxy
 ```
 
-#### Bamboo组件
+#### 7.2 Bamboo组件
 
 通过脚本自动安装
 
@@ -437,7 +438,7 @@ kill $(lsof -i:8000 |awk '{print $2}' | tail -n 2)
 
 >说明：可以用命令`netstat -ntpl`或者`lsof -i :5050 -n`查看进程
 
-#### Bamboo组件（源码编译安装）
+#### 7.3 Bamboo组件（源码编译安装）
 
 直接获取rpm包
 
@@ -561,7 +562,7 @@ stats socket /run/haproxy/admin.sock mode 660 level admin  >>   stats socket /va
 
 `systemctl stop bamboo-server`
 
-#### Bamboo简单使用
+#### 7.4 Bamboo简单使用
 
 按上述配置Bamboo安装后以后，Bamboo监听`8000`端口，可以通过`http://<IP>:8000`来访问bamboo的控制台
 
@@ -573,9 +574,9 @@ stats socket /run/haproxy/admin.sock mode 660 level admin  >>   stats socket /va
 
 现在，可以通过`http://<IP>`，默认端口：`80`来访问`inky1`这个app。
 
-### 8.疑难杂症
+### 8 疑难杂症
 
-#### 内存不足
+#### 8.1 内存不足
 
 - 表现：无法发布app应用，marathon日志中关键提示`mem NOT SATISFIED`
 - 分析：free命令查看宿主机内存使用率
