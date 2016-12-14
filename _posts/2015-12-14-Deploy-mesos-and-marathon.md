@@ -10,11 +10,6 @@ keywords: [docker,云计算,mesos]
 
 ### 1.整体架构
 
-|  Name  |      IP      |   Role  |      WorkSpace       |      EIP       |
-|--------|--------------|---------|----------------------|----------------|
-| Proxy  | 192.168.1.1  | Gateway | /opt/proxy/openresty | 121.43.163.218 |
-| Host01 | 192.168.1.11 | Compute | /opt/host            | -              |
-
 |     节点名称    | 节点类型 |      IP      |            组件            |
 | --------------- | -------- | ------------ | -------------------------- |
 | master101       | master   | 192.168.2.71 | mesos、marathon、zookpeer  |
@@ -61,15 +56,15 @@ yum makecache
 
 >说明：以上部署所有节点执行
 
-### 3.Master节点安装
+### 3 Master节点安装
 
-#### 组件安装
+#### 3.1 组件安装
 
 ```bash
 yum -y install mesos marathon mesosphere-zookeeper
 ```
 
-#### 配置zookeeper
+#### 3.2 配置zookeeper
 
 ```bash
 #master101
@@ -78,14 +73,18 @@ echo 1 > /var/lib/zookeeper/myid
 echo 2 > /var/lib/zookeeper/myid
 #master103
 echo 3 > /var/lib/zookeeper/myid
-```  
+```
+
 编辑文件/etc/zookeeper/conf/zoo.cfg，追加以下内容
+
 ```bash
 server.1=192.168.2.71:2888:3888
 server.2=192.168.2.72:2888:3888
 server.3=192.168.2.73:2888:3888
 ```
+
 重启zookeeper服务
+
 ```bash
 systemctl start zookeeper
 ```
@@ -93,12 +92,14 @@ systemctl start zookeeper
 #### 配置mesos
 
 配置mesos使用zookeeper
+
 ```bash
 echo zk://192.168.2.71:2181,192.168.2.72:2181,192.168.2.73:2181/mesos > /etc/mesos/zk
 echo 2 > /etc/mesos-master/quorum
 ```
+
 配置mesos-master组件的hostname和ip参数
-master01
+
 ```bash
 #master101
 echo 192.168.2.71 > /etc/mesos-master/hostname
@@ -114,10 +115,13 @@ echo 192.168.2.73 > /etc/mesos-master/ip
 > 说明：hostname可以不配置，默认使用机器名
 
 停用masrer节点上的mesos-slave服务
+
 ```bash
 systemctl stop mesos-slave.service && systemctl disable mesos-slave.service
 ```
+
 重启mesos-master服务
+
 ```bash
 systemctl restart mesos-master.service
 ```
@@ -127,7 +131,9 @@ systemctl restart mesos-master.service
 ```bash
 mkdir -p /etc/marathon/conf
 ```
+
 直接复制mesos的hostname文件
+
 ```bash
 cp /etc/mesos-master/hostname /etc/marathon/conf
 echo http_callback > /etc/marathon/conf/event_subscriber
@@ -137,27 +143,36 @@ echo http_callback > /etc/marathon/conf/event_subscriber
 
 默认情况下marathon会自动获取本机的mesos的zk配置，并且会根据zookeeper的配置。为自己添加marathon的配置同步，手动添加以下配置文件是为了便于管理，同样，其他的marathon参数，都可以以参数名称命名一个文件，存放在/etc/marathon/conf目录下，然后在其中设置参数值的形式为marathon作进一步配置
 提示：在本例中，默认的marathon启动命令为：
+
 ```bash
 marathon: run_jar --hostname 192.168.2.71 --zk zk://192.168.2.71:2181,192.168.2.72:2181,192.168.2.73:2181/marathon --master zk://192.168.2.71:2181,192.168.2.72:2181,192.168.2.73:2181/mesos
 ```
+
 第一步：连接mesos的zookeeper
+
 ```bash
 cp /etc/mesos/zk /etc/marathon/conf/master
 ```
+
 第二步：配置marathon使用的zookeeper
+
 ```bash
 echo zk://192.168.2.71:2181,192.168.2.72:2181,192.168.2.73:2181/marathon /etc/marathon/conf/zk
 ```  
 #### 启动服务及检测
+
 重启marathon服务
+
 ```bash
 systemctl restart marathon
 ```
+
 检查端口监听情况
 
 >说明：如果没有lsof命令可以下载安装`yum install -y lsof`
 
 zookeeper端口：lsof -i :2181 -n
+
 ```bash
 COMMAND    PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
 java      2893 root   23u  IPv6  23787      0t0  TCP *:eforward (LISTEN)
@@ -173,7 +188,9 @@ mesos-mas 3342 root   18u  IPv4  26920      0t0  TCP 192.168.2.71:54419->192.168
 mesos-mas 3342 root   22u  IPv4  25817      0t0  TCP 192.168.2.71:54420->192.168.2.72:eforward (ESTABLISHED)
 mesos-mas 3342 root   23u  IPv4  25816      0t0  TCP 192.168.2.71:54418->192.168.2.72:eforward (ESTABLISHED)
 ```
+
 mesos端口：lsof -i :5050 -n
+
 ```bash
 java      2957 root   27u  IPv4  25326      0t0  TCP 192.168.2.71:52901->192.168.2.72:mmcc (ESTABLISHED)
 mesos-mas 3342 root    5u  IPv4  24286      0t0  TCP 192.168.2.71:mmcc (LISTEN)
@@ -182,19 +199,25 @@ mesos-mas 3342 root   25u  IPv4  26967      0t0  TCP 192.168.2.71:60935->192.168
 mesos-mas 3342 root   26u  IPv4  25818      0t0  TCP 192.168.2.71:mmcc->192.168.2.72:45845 (ESTABLISHED)
 mesos-mas 3342 root   27u  IPv4  25823      0t0  TCP 192.168.2.71:mmcc->192.168.2.73:51978 (ESTABLISHED)
 ```
+
 其他端口
+
 ```bash
 mesos通信端口：lsof -i :2888 -n
 mesos选举端口：lsof -i :3888 -n
 marathon端口：lsof -i :8080 -n
 ```
+
 服务重启命令
+
 ```bash
 systemctl restart zookeeper
 systemctl restart mesos-master
 systemctl restart marathon
 ```
+
 配置开机启动
+
 ```bash
 chkconfig zookeeper on
 chkconfig mesos-master on
@@ -217,21 +240,24 @@ echo zk://192.168.2.71:2181,192.168.2.72:2181,192.168.2.73:2181/mesos > /etc/mes
 
 #### 配置mesos-slave
 
-slave101
 ```bash
+#slave101
 echo 192.168.2.61 > /etc/mesos-slave/hostname
 echo 192.168.2.61 > /etc/mesos-slave/ip
 ```
-slave102
+
 ```bash
+#slave102
 echo 192.168.2.62 > /etc/mesos-slave/hostname
 echo 192.168.2.62 > /etc/mesos-slave/ip
 ```
-slave103
+
 ```bash
+#slave103
 echo 192.168.2.63 > /etc/mesos-slave/hostname
 echo 192.168.2.63 > /etc/mesos-slave/ip
 ```
+
 >hostname可以不配置，默认使用机器名
 
 #### 配置mesos-slave使用docker容器
@@ -240,24 +266,32 @@ echo 192.168.2.63 > /etc/mesos-slave/ip
 echo 'docker,mesos' > /etc/mesos-slave/containerizers
 echo '5mins' > /etc/mesos-slave/executor_registration_timeout
 ```
+
 如果使用本地docker仓库，需要配置docker
+
 ```bash
 sed -i "s/^OPTIONS='--selinux-enabled'/OPTIONS='--selinux-enabled --insecure-registry 192.168.2.98:5000'/g" /etc/sysconfig/docker
 ```
+
 >说明：`192.168.2.98:5000`是本环境中部署的docker registry仓库地址
 
 #### 启动服务
 
 停用slave节点上的mesos-master服务
+
 ```bash
 systemctl stop mesos-master.service && systemctl disable mesos-master.service
 ```
+
 服务重启命令
+
 ```bash
 systemctl restart docker
 systemctl restart mesos-slave
 ```
+
 配置开机启动
+
 ```bash
 chkconfig docker on
 chkconfig mesos-slave on
@@ -275,6 +309,7 @@ Mesos的控制台上可以查看的当前的资源实用情况、Slave节点状�
 Marathon控制台地址：`http://192.168.2.71:8080`
 Marathon控制台上可以查看当前应用的运行状态，可以发布新应用、调整当前应用的实例数等。  
 发布应用：
+
 ```bash
 ID：hello
 CPUs：0.1
@@ -283,15 +318,20 @@ Disk Space：0
 Instances：1
 Command：echo hello world!;sleep 10;
 ```
+
 上述例子是使用Mesos默认容器进行创建，并执行任务；如果需要使用docker容器，可以在`Docker container settings`中填写具体参数。
 应用创建后，会输出`hello world!`，并且每10秒钟重新deploy一次。
+
 >说明：Mesos+Marathon框架发布的Task会在执行完毕后进行销毁，并重新发布，若是需要发布web app一类的长应用，必须保证运行程序独占console，如Tomcat，可以执行`catalina.sh run`进行启动并保持长运行状态，后台运行的程序Marathon无法保持Task长运行。
 
 可以通过Marathon的RestAPI发布应用
+
 ```bash
 curl -X POST http://192.168.2.71:8080/v2/apps -d@inky.json -H "Content-type: application/json"
 ```
+
 inky.json文件示例
+
 ```json
 {
     "id": "inky4",
@@ -315,20 +355,26 @@ inky.json文件示例
 
 #### 仓库搭建
 
-方式一：通过docker image构建  
+方式一：通过docker image构建
+
 `docker run -d -p 5000:5000 -v /opt/data/registry:/tmp/registry:rw registry`
->说明：`/tmp/registry`:容器中镜像的存储位置  
+
+>说明：`/tmp/registry`:容器中镜像的存储位置
 `/opt/data/registry`：挂载`/tmp/registry`到本地宿主机上的目录
 
 方式二：通过本地安装docker-registry构建
+
 ```bash
 yum install -y python-devel libevent-devel python-pip gcc xz-devel
 python-pip install docker-registry
 ```
-存储路径修改：  
+
+存储路径修改：
+
 `cp config/config_sample.yml config/config.yml`
-修改其中的：`storage_path`参数。  
-启动docker-registry的web服务  
+
+修改其中的：`storage_path`参数，启动docker-registry的web服务
+
 `gunicorn -c contrib/gunicorn.py docker_registry.wsgi:application`
 
 #### 上传、下载镜像
@@ -343,21 +389,26 @@ python-pip install docker-registry
 
 #### Haproxy组件
 
-安装
 ```bash
 yum install -y haproxy
 ```
+
 配置忽略VIP及开启转发
+
 ```bash
 echo net.ipv4.ip_forward=1 >> /etc/sysctl.conf
 echo net.ipv4.ip_nonlocal_bind=1 >> /etc/sysctl.conf
 ```
+
 重启系统或者执行以下命令
+
 ```bash
 sysctl -e net.ipv4.ip_forward=1
 sysctl -e net.ipv4.ip_nonlocal_bind=1
 ```
+
 重启haproxy服务
+
 ```bash
 chkconfig haproxy on
 systemctl restart haproxy
@@ -366,29 +417,38 @@ systemctl restart haproxy
 #### Bamboo组件
 
 通过脚本自动安装
+
 ```bash
 curl https://raw.githubusercontent.com/VFT/bamboo/master/install.sh | sh
 mkdir /var/bamboo
 cp /opt/bamboo/config/haproxy_template.cfg /var/bamboo/
 cp /opt/bamboo/config/production.example.json /var/bamboo/production.json
 ```
+
 启动Bamboo服务
+
 ```bash
 nohup /opt/bamboo/bamboo -haproxy_check -config="/var/bamboo/production.json" &
 ```
+
 停止Bamboo服务
+
 ```bash
 kill $(lsof -i:8000 |awk '{print $2}' | tail -n 2)
 ```
+
 >说明：可以用命令`netstat -ntpl`或者`lsof -i :5050 -n`查看进程
 
 #### Bamboo组件（源码编译安装）
 
-直接获取rpm包  
+直接获取rpm包
+
 ```bash
 wget https://github.com/VFT/mesos-docker/blob/master/package/bamboo-0.2.16_1-1.x86_64.rpm
 ```
-或者自主编译rpm二进制包  
+
+或者自主编译rpm二进制包
+
 ```bash
 # build dependencies
 sudo yum install -y golang rpm-build rubygems ruby-devel
@@ -424,12 +484,15 @@ sed -i 's/pkgtype=${_PKGTYPE:-"deb"}/pkgtype=${_PKGTYPE:-"rpm"}/g' builder/build
 rpm -ivh bamboo-0.2.15_1-1.x86_64.rpm
 ```
 
-安装start-stop-daemon
+安装start-stop-daemon：
 方式一直接获取
+
 ```bash
 wget https://github.com/VFT/mesos-docker/blob/master/script/init.d-bamboo-server
 ```
+
 方式二自主编译
+
 ```bash
 yum install -y gcc wget
 wget http://developer.axis.com/download/distribution/apps-sys-utils-start-stop-daemon-IR1_9_18-2.tar.gz
@@ -438,7 +501,9 @@ cd apps/sys-utils/start-stop-daemon-IR1_9_18-2/
 gcc start-stop-daemon.c -o start-stop-daemon
 cp start-stop-daemon /usr/bin
 ```
+
 配置bamboo-server启动（脚本位于源码包中）
+
 ```bash
 wget https://github.com/QubitProducts/bamboo/archive/v0.2.14.tar.gz
 tar xzvf v0.2.14.tar.gz
@@ -448,7 +513,9 @@ chown root:root /etc/init.d/bamboo-server
 chmod 755 /etc/init.d/bamboo-server
 chkconfig bamboo-server on
 ```
+
 修改/var/bamboo/production.json
+
 ```json
 {
   "Marathon": {
@@ -479,23 +546,33 @@ chkconfig bamboo-server on
   }
 }
 ```
+
 >说明：Marathon.Endpoint：Marathon服务的访问地址，Bamboo.Host：Bamboo服务控制台地址，Bamboo.Zookeeper.Host：Zookeeper服务访问地址
 
-修改/var/bamboo/haproxy_template.cfg  
+修改/var/bamboo/haproxy_template.cfg
+
 ```bash
 stats socket /run/haproxy/admin.sock mode 660 level admin  >>   stats socket /var/lib/haproxy/stats
 ```
-启动Bamboo服务  
-`systemctl start bamboo-server`  
-停止Bamboo服务  
+
+启动Bamboo服务
+
+`systemctl start bamboo-server`
+
+停止Bamboo服务
+
 `systemctl stop bamboo-server`
 
 #### Bamboo简单使用
 
-按上述配置Bamboo安装后以后，Bamboo监听`8000`端口，可以通过`http://<IP>:8000`来访问bamboo的控制台  
-![bamboo console](https://raw.githubusercontent.com/VFT/imageStore/master/bamboo01.png)  
-添加转发规则  
-![bamboo edit](https://raw.githubusercontent.com/VFT/imageStore/master/bamboo02.png)  
+按上述配置Bamboo安装后以后，Bamboo监听`8000`端口，可以通过`http://<IP>:8000`来访问bamboo的控制台
+
+![bamboo console](https://raw.githubusercontent.com/VFT/imageStore/master/bamboo01.png)
+
+添加转发规则
+
+![bamboo edit](https://raw.githubusercontent.com/VFT/imageStore/master/bamboo02.png)
+
 现在，可以通过`http://<IP>`，默认端口：`80`来访问`inky1`这个app。
 
 ### 8.疑难杂症
@@ -510,14 +587,18 @@ stats socket /run/haproxy/admin.sock mode 660 level admin  >>   stats socket /va
 Mem:           1.8G        339M        261M         24M        1.2G        1.2G
 Swap:          2.0G         76K        2.0G
 ```
+
 可以看出，空闲内存不足，基本都是被cache占用，而marathon识别内存时是从free中识别
+
 - 解决：手动释放内存
 ```bash
 sync
 echo 3 > /proc/sys/vm/drop_caches
 sysctl -p
 ```
+
 查看内存情况：
+
 ```bash
 [root@salve102 ~]# free -h
               total        used        free      shared  buff/cache   available
