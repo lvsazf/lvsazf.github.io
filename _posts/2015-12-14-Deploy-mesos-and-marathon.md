@@ -62,7 +62,6 @@ yum makecache
 ```bash
 yum -y install mesos marathon mesosphere-zookeeper
 ```
-
 #### 3.2 配置zookeeper
 
 ```bash
