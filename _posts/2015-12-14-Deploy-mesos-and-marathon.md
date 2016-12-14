@@ -2,11 +2,12 @@
 layout: post
 title:  Mesos+Marathon+docker集群部署
 categories: [docker,Cloud]
-date: 2015-10-15 10:58:30 +0800
+date: 2015-12-14 10:58:30 +0800
 keywords: [docker,云计算,mesos]
 ---
+>基于Centos7.2 Mesos+Marathon集群部署，服务发现使用bamboo组件。
 
-##1.整体架构
+###1.整体架构
 |     节点名称    | 节点类型 |      IP      |            组件            |
 | --------------- | -------- | ------------ | -------------------------- |
 | master101       | master   | 192.168.2.71 | mesos、marathon、zookpeer  |
@@ -20,8 +21,8 @@ keywords: [docker,云计算,mesos]
 | bamboo103       | 负载均衡 | 192.168.2.93 | haproxy、bamboo、keeplived |  
 >说明：集群模式部署，master节点应该是奇数，最少为3个节点，便于leader选举
 
-##2.环境准备
->操作系统：Centos7.1 Minimal  
+###2.环境准备
+>操作系统：Centos7.2 Minimal  
 >Mesos版本：0.24.1  
 >Marathon版本：0.11.0  
 >Docker版本：1.7.1
@@ -50,7 +51,7 @@ yum makecache
 ```
 >说明：以上部署所有节点执行
 
-##3.Master节点安装
+###3.Master节点安装
 ####组件安装
 ```bash
 yum -y install mesos marathon mesosphere-zookeeper
@@ -178,7 +179,7 @@ chkconfig zookeeper on
 chkconfig mesos-master on
 chkconfig marathon on
 ```
-##4.Salve节点安装
+###4.Salve节点安装
 ####组件安装
 ```bash
 yum -y install mesos docker
@@ -231,7 +232,7 @@ systemctl restart mesos-slave
 chkconfig docker on
 chkconfig mesos-slave on
 ```
-##5.Mesos简单使用
+###5.Mesos简单使用
 ####Mesos控制台  
 Mesos的控制台地址：`http://192.168.2.71:5050`
 Mesos的控制台上可以查看的当前的资源实用情况、Slave节点状态、当前运行的Task、完成的Task、可以切换到Framework（如Marathon）或者Slave。
@@ -275,7 +276,7 @@ inky.json文件示例
 }
 ```
 
-##6.Docker私有仓库
+###6.Docker私有仓库
 ####仓库搭建
 方式一：通过docker image构建  
 `docker run -d -p 5000:5000 -v /opt/data/registry:/tmp/registry:rw registry`
@@ -299,7 +300,7 @@ python-pip install docker-registry
 4. 推送镜像到私有仓库（docker push）
 5. 获取私有仓库镜像（docker pull）
 
-##7.负载均衡与服务发现
+###7.负载均衡与服务发现
 ####Haproxy组件
 安装
 ```bash
@@ -451,7 +452,7 @@ stats socket /run/haproxy/admin.sock mode 660 level admin  >>   stats socket /va
 ![bamboo edit](https://raw.githubusercontent.com/VFT/imageStore/master/bamboo02.png)  
 现在，可以通过`http://<IP>`，默认端口：`80`来访问`inky1`这个app。
 
-##8.疑难杂症
+###8.疑难杂症
 ####内存不足
 - 表现：无法发布app应用，marathon日志中关键提示`mem NOT SATISFIED`
 - 分析：free命令查看宿主机内存使用率
