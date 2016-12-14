@@ -2,15 +2,16 @@
 #   Main Configs   #
 # ---------------- #
 baseurl:
-url: http://mazhuang.org
+url: http://cloudnil.com
 date_format: "ordinal"
-title: 码志
-subtitle: "打码改变人生"
-description: "马壮的个人博客"
-keywords: 码志, Zhuang Ma, mzlogin, mazhuang
+title: VF的部落格
+subtitle: "技术无止境,初心不忘..."
+description: "技术无止境,初心不忘..."
+keywords: VF,可不勺子
 favicon: /favicon.ico
 timezone: Asia/Shanghai
 encoding: "utf-8"
+source_code: https://github.com/cloudnil/cloudnil.github.io
 side_bar_repo_limit: 5
 
 # ---------------- #
@@ -37,6 +38,10 @@ navs:
   -
     href: /wiki/
     label: 维基
+    
+  -
+    href: /open-source/
+    label: 开源
 
   -
     href: /links/
@@ -77,27 +82,27 @@ collections:
         output: true
         permalink: /wiki/:path/
 
-repository: mzlogin/mzlogin.github.io
+repository: VFT/cloudnil.github.io
 
 # ---------------- #
 #      Socials     #
 # ---------------- #
-github_username: mzlogin
-douban_username: freedim
-facebook_username: mzlogin
-weibo_username: mzlogin
-zhihu_username: mzlogin
-twitter_username: mzlogin
+github_username: VFT
+#douban_username: tiger435
+#facebook_username: 
+weibo_username: tiger435
+#zhihu_username: tiger435
+twitter_username: tiger435
 
 # ---------------- #
 #      Comments    #
 # ---------------- #
 # support provider: disqus, duoshuo
-comments_provider: disqus
+comments_provider: duoshuo
 # !!!重要!!! 请修改下面两个用户名为你自己申请的
 # !!!Important!!! Please modify usernames below to yours
-duoshuo_username: mazhuang
-disqus_username: mzlogin
+duoshuo_username: tiger435
+#disqus_username: tiger435
 # 在使用 disqus 的时候可点击显示多说评论框
 lazy_load_duoshuo: true
 
@@ -105,11 +110,11 @@ lazy_load_duoshuo: true
 #    Analytics     #
 # ---------------- #
 google:
-    analytics_id: UA-80669434-1
+    analytics_id: UA-88957594-1
 
 # ---------------- #
 #      Datas       #
 # ---------------- #
-skill_software_keywords: [Java, C++, Python, Design Patterns]
-skill_mobile_app_keywords: [Android, Reverse Engineering]
+skill_software_keywords: [Linux, Docker, Shell, Java, Golang]
+# skill_mobile_app_keywords: [Android, Reverse Engineering]
 skill_windows_keywords: [Win32 SDK, DuiLib, WTL, COM, WinDbg]
