@@ -5,6 +5,7 @@ categories: [docker,Cloud]
 date: 2015-12-14 10:58:30 +0800
 keywords: [docker,云计算,mesos]
 ---
+
 >基于Centos7.2 Mesos+Marathon集群部署，服务发现使用bamboo组件。
 
 ###1.整体架构
@@ -18,7 +19,7 @@ keywords: [docker,云计算,mesos]
 | slave103        | slave    | 192.168.2.63 | mesos、docker              |
 | bamboo101       | 负载均衡 | 192.168.2.91 | haproxy、bamboo、keeplived |
 | bamboo102       | 负载均衡 | 192.168.2.92 | haproxy、bamboo、keeplived |
-| bamboo103       | 负载均衡 | 192.168.2.93 | haproxy、bamboo、keeplived |  
+| bamboo103       | 负载均衡 | 192.168.2.93 | haproxy、bamboo、keeplived |
 >说明：集群模式部署，master节点应该是奇数，最少为3个节点，便于leader选举
 
 ###2.环境准备
