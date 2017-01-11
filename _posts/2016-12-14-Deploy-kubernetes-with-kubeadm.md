@@ -86,9 +86,7 @@ systemctl enable kubelet && systemctl start kubelet
 
 ```bash
 git clone https://github.com/kubernetes/release.git
-
 cd release/rpm
-
 ./docker-build.sh
 ```
 
@@ -116,7 +114,8 @@ kubernetes-1.5.0所需要的镜像：
 
 ```bash
 #!/bin/bash
-images=(kube-proxy-amd64:v1.5.0 kube-discovery-amd64:1.0 kubedns-amd64:1.7 kube-scheduler-amd64:v1.5.0 kube-controller-manager-amd64:v1.5.0 kube-apiserver-amd64:v1.5.0 etcd-amd64:2.2.5 kube-dnsmasq-amd64:1.3 exechealthz-amd64:1.1 pause-amd64:3.0 kubernetes-dashboard-amd64:v1.5.0)
+images=(kube-proxy-amd64:v1.5.0 kube-discovery-amd64:1.0 kubedns-amd64:1.7 kube-scheduler-amd64:v1.5.0 kube-controller-manager-amd64:v1.5.0 kube-apiserver-amd64:v1.5.0 etcd-amd64:2.2.5 kube-dnsmasq-amd64:1.3 exechealthz-amd64:1.1 pause-amd64:3.0 kubernetes-dashboard-amd64:v1.5.0 
+nginx-ingress-controller:0.8.3)
 for imageName in ${images[@]} ; do
   docker pull cloudnil/$imageName
   docker tag cloudnil/$imageName gcr.io/google_containers/$imageName
@@ -229,6 +228,14 @@ minion02   Ready          2m
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 ```
 
+如果使用的物理机器是阿里的VPC，请使用下边这个脚本创建网络，原生的flannel镜像不支持VPC，创建后网络是正常，但是会创建多个虚拟网卡，重启节点后网络失效。
+
+```bash
+kubectl apply -f http://k8s.oss-cn-shanghai.aliyuncs.com/kube/flannel-vpc.yml
+```
+
+>说明：注意配置其中的Network与kubeadm init命令中的pod-network-cidr一致、ACCESS_KEY_ID、ACCESS_KEY_SECRET是阿里云的KEY。
+
 检查各节点组件运行状态：
 
 ```bash
@@ -249,3 +256,173 @@ kube-proxy-pn1j9                        1/1       Running   0          17m      
 kube-scheduler-master                   1/1       Running   0          17m        172.16.1.101   master
 ```
 >说明：kube-dns需要等flannel配置完成后才是running状态。
+
+### 8 部署Dashboard
+
+下载kubernetes-dashboard.yaml
+
+```bash
+curl -O https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
+```
+
+修改配置内容，#------内是修改的内容，调整目的：部署kubernetes-dashboard到default-namespaces，不暴露端口到HostNode，调整版本为1.5.0，imagePullPolicy调整为IfNotPresent。
+
+```yaml
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: kubernetes-dashboard
+  name: kubernetes-dashboard
+#----------
+#  namespace: kube-system
+#----------
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubernetes-dashboard
+  template:
+    metadata:
+      labels:
+        app: kubernetes-dashboard
+      annotations:
+        scheduler.alpha.kubernetes.io/tolerations: |
+          [
+            {
+              "key": "dedicated",
+              "operator": "Equal",
+              "value": "master",
+              "effect": "NoSchedule"
+            }
+          ]
+    spec:
+      containers:
+      - name: kubernetes-dashboard
+        #----------
+        image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.5.0
+        imagePullPolicy: IfNotPresent
+        #----------
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        args:
+          # Uncomment the following line to manually specify Kubernetes API server Host
+          # If not specified, Dashboard will attempt to auto discover the API server and connect
+          # to it. Uncomment only if the default does not work.
+          # - --apiserver-host=http://my-address:port
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9090
+          initialDelaySeconds: 30
+          timeoutSeconds: 30
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: kubernetes-dashboard
+  name: kubernetes-dashboard
+#----------
+#  namespace: kube-system
+#----------
+spec:
+#----------
+#  type: NodePort
+#----------
+  ports:
+  - port: 80
+    targetPort: 9090
+  selector:
+    app: kubernetes-dashboard
+```
+
+### 9 Dashboard服务暴露到公网
+
+kubernetes中的Service暴露到外部有三种方式，分别是：
+
+- LoadBlancer Service
+- NodePort Service
+- Ingress
+
+LoadBlancer Service是kubernetes深度结合云平台的一个组件；当使用LoadBlancer Service暴露服务时，实际上是通过向底层云平台申请创建一个负载均衡器来向外暴露服务；目前LoadBlancer Service支持的云平台已经相对完善，比如国外的GCE、DigitalOcean，国内的 阿里云，私有云 Openstack 等等，由于LoadBlancer Service深度结合了云平台，所以只能在一些云平台上来使用。
+
+NodePort Service顾名思义，实质上就是通过在集群的每个node上暴露一个端口，然后将这个端口映射到某个具体的service来实现的，虽然每个node的端口有很多(0~65535)，但是由于安全性和易用性(服务多了就乱了，还有端口冲突问题)实际使用可能并不多。
+
+Ingress可以实现使用nginx等开源的反向代理负载均衡器实现对外暴露服务，可以理解Ingress就是用于配置域名转发的一个东西，在nginx中就类似upstream，它与ingress-controller结合使用，通过ingress-controller监控到pod及service的变化，动态地将ingress中的转发信息写到诸如nginx、apache、haproxy等组件中实现方向代理和负载均衡。
+
+#### 9.1 部署Nginx-ingress-controller
+
+`Nginx-ingress-controller`是kubernetes官方提供的集成了Ingress-controller和Nginx的一个docker镜像。
+
+```yaml
+metadata:
+  name: nginx-ingress-controller
+  labels:
+    k8s-app: nginx-ingress-lb
+spec:
+  replicas: 1
+  selector:
+    k8s-app: nginx-ingress-lb
+  template:
+    metadata:
+      labels:
+        k8s-app: nginx-ingress-lb
+        name: nginx-ingress-lb
+    spec:
+      terminationGracePeriodSeconds: 60
+      hostNetwork: true
+      #本环境中的minion02节点有外网IP，并且有label定义：External-IP=true
+      nodeSelector:
+        External-IP: true
+      containers:
+      - image: gcr.io/google_containers/nginx-ingress-controller:0.8.3
+        name: nginx-ingress-lb
+        imagePullPolicy: IfNotPresent
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        args:
+        - /nginx-ingress-controller
+        - --default-backend-service=$(POD_NAMESPACE)/kubernetes-dashboard
+```
+
+#### 9.2 部署Ingress
+
+```bash
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: k8s-dashboard
+spec:
+  rules:
+  - host: dashboard.cloudnil.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kubernetes-dashboard
+          servicePort: 80
+
+```
+
+部署完Ingress后，解析域名`dashboard.cloudnil.com`到minion02的外网IP，就可以使用`dashboard.cloudnil.com`访问dashboard。
