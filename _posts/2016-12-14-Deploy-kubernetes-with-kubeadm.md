@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  kubeadm快速安装kubernetes
+title:  kubeadm快速部署kubernetes1.5
 categories: [docker,Cloud]
 date: 2016-12-14 10:58:30 +0800
 keywords: [docker,云计算,kubernetes]
