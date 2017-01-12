@@ -145,8 +145,7 @@ apiVersion: v1
 目前只有NFS和HostPath支持Recycle策略，AWS EBS、GCE PD、Azure Disk、Cinder支持Delete策略。
 
 >注意：Recycle策略会通过运行一个busybox容器来执行数据删除命令，默认定义的busybox镜像是：`gcr.io/google_containers/busybox:latest`，并且`imagePullPolicy: Always`，如果需要调整配置，需要增加kube-controller-manager 启动参数：`--pv-recycler-pod-template-filepath-hostpath=/etc/kubernetes/manifests/recycler.yml`
-
->```yaml
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
