@@ -15,9 +15,9 @@
 
 ## 效果预览
 
-**[在线预览 &rarr;](http://mazhuang.org)**
+**[在线预览 &rarr;](http://cloudnil.com)**
 
-![screenshot home](http://mazhuang.org/assets/images/screenshots/home.png)
+![screenshot home](http://cloudnil.com/assets/images/screenshots/home.png)
 
 ## Fork 指南
 
