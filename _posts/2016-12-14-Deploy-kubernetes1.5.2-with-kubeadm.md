@@ -48,6 +48,8 @@ systemctl enable docker.service
 yum install -y socat
 
 rpm -ivh kubeadm-1.6.0-0.alpha.0.2074.a092d8e0f95f52.x86_64.rpm  kubectl-1.5.1-0.x86_64.rpm  kubelet-1.5.1-0.x86_64.rpm  kubernetes-cni-0.3.0.1-0.07a8a2.x86_64.rpm
+
+systemctl enable kubelet.service
 ```
 
 **官方源安装**
@@ -72,7 +74,7 @@ EOF
 
 yumdownloader kubelet kubeadm kubectl kubernetes-cni
 rpm -ivh *.rpm
-systemctl enable kubelet && systemctl start kubelet
+systemctl enable kubelet.service && systemctl start kubelet
 ```
 
 **非官方源安装**
@@ -109,9 +111,10 @@ kubeadm方式安装kubernetes集群需要的镜像在docker官方镜像中并未
 kubernetes-1.5.2所需要的镜像：
 
 - etcd-amd64:2.2.5
-- kubedns-amd64:1.7
-- kube-dnsmasq-amd64:1.3 
-- exechealthz-amd64:1.1 
+- kubedns-amd64:1.9
+- kube-dnsmasq-amd64:1.4 
+- dnsmasq-metrics-amd64:1.0
+- exechealthz-amd64:1.2 
 - pause-amd64:3.0
 - kube-discovery-amd64:1.0
 - kube-proxy-amd64:v1.5.2 
@@ -124,8 +127,7 @@ kubernetes-1.5.2所需要的镜像：
 
 ```bash
 #!/bin/bash
-images=(kube-proxy-amd64:v1.5.2 kube-discovery-amd64:1.0 kubedns-amd64:1.7 kube-scheduler-amd64:v1.5.2 kube-controller-manager-amd64:v1.5.2 kube-apiserver-amd64:v1.5.2 etcd-amd64:2.2.5 kube-dnsmasq-amd64:1.3 exechealthz-amd64:1.1 pause-amd64:3.0 kubernetes-dashboard-amd64:v1.5.0 
-nginx-ingress-controller:0.8.3)
+images=(kube-proxy-amd64:v1.5.2 kube-discovery-amd64:1.0 kubedns-amd64:1.9 kube-scheduler-amd64:v1.5.2 kube-controller-manager-amd64:v1.5.2 kube-apiserver-amd64:v1.5.2 etcd-amd64:2.2.5 kube-dnsmasq-amd64:1.4 dnsmasq-metrics-amd64:1.0 exechealthz-amd64:1.2 pause-amd64:3.0 kubernetes-dashboard-amd64:v1.5.0 nginx-ingress-controller:0.8.3)
 for imageName in ${images[@]} ; do
   docker pull cloudnil/$imageName
   docker tag cloudnil/$imageName gcr.io/google_containers/$imageName
@@ -139,12 +141,12 @@ done
 
 ```bash
 kubeadm reset && systemctl start kubelet
-kubeadm init --api-advertise-addresses=172.16.1.101 --pod-network-cidr=10.244.0.0/16 --use-kubernetes-version v1.5.2
+kubeadm init --api-advertise-addresses=172.16.1.101 --use-kubernetes-version v1.5.2
 #如果使用外部etcd集群:
-kubeadm init --api-advertise-addresses=172.16.1.101 --pod-network-cidr=10.244.0.0/16 --use-kubernetes-version v1.5.2 --external-etcd-endpoints http://172.16.1.107:2379,http://172.16.1.107:4001
+kubeadm init --api-advertise-addresses=172.16.1.101 --use-kubernetes-version v1.5.2 --external-etcd-endpoints http://172.16.1.107:2379,http://172.16.1.107:4001
 ```
 
->说明：`--pod-network-cidr=10.244.0.0/16`是Flannel使用的网段，如果不打算使用Flannel的可以去掉该属性。如果有多网卡的，请根据实际情况配置`--api-advertise-addresses=<ip-address>`，单网卡情况可以省略。
+>说明：如果打算使用flannel网络，请加上：`--pod-network-cidr=10.244.0.0/16`。如果有多网卡的，请根据实际情况配置`--api-advertise-addresses=<ip-address>`，单网卡情况可以省略。
 
 如果出现`ebtables not found in system path`的错误，要先安装`ebtables`包，我安装的过程中未提示，该包系统已经自带了。
 ```bash
@@ -232,42 +234,105 @@ minion01   Ready          2m
 minion02   Ready          2m
 ```
 
-### 7 安装Flannel网络
+### 7 安装Calico网络
 
-网络组件选择很多，可以根据自己的需要选择calico、weave、flannel，calico性能最好，weave和flannel差不多。[Addons](http://kubernetes.io/docs/admin/addons/)中有配置好的yaml。
-
-```bash
-kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-```
-
-如果使用的物理机器是阿里的VPC，请使用下边这个脚本创建网络，原生的flannel镜像不支持VPC，创建后网络是正常，但是会创建多个虚拟网卡，重启节点后网络失效。
+网络组件选择很多，可以根据自己的需要选择calico、weave、flannel，calico性能最好，weave和flannel差不多。[Addons](http://kubernetes.io/docs/admin/addons/)中有配置好的yaml，部署环境使用的阿里云的VPC，官方提供的flannel.yaml创建的flannel网络有问题，所以本文中尝试calico网络，。
 
 ```bash
-kubectl apply -f http://k8s.oss-cn-shanghai.aliyuncs.com/kube/flannel-vpc.yml
+kubectl apply -f http://docs.projectcalico.org/v2.0/getting-started/kubernetes/installation/hosted/kubeadm/calico.yaml
 ```
 
->说明：注意配置其中的Network与kubeadm init命令中的pod-network-cidr一致、ACCESS_KEY_ID、ACCESS_KEY_SECRET是阿里云的KEY。
+如果使用了外部etcd，去掉其中以下内容，并修改`etcd_endpoints: [ETCD_ENDPOINTS]`：
+
+```yaml
+---
+
+# This manifest installs the Calico etcd on the kubeadm master.  This uses a DaemonSet
+# to force it to run on the master even when the master isn't schedulable, and uses
+# nodeSelector to ensure it only runs on the master.
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: calico-etcd
+  namespace: kube-system
+  labels:
+    k8s-app: calico-etcd
+spec:
+  template:
+    metadata:
+      labels:
+        k8s-app: calico-etcd
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+        scheduler.alpha.kubernetes.io/tolerations: |
+          [{"key": "dedicated", "value": "master", "effect": "NoSchedule" },
+           {"key":"CriticalAddonsOnly", "operator":"Exists"}]
+    spec:
+      # Only run this pod on the master.
+      nodeSelector:
+        kubeadm.alpha.kubernetes.io/role: master
+      hostNetwork: true
+      containers:
+        - name: calico-etcd
+          image: gcr.io/google_containers/etcd:2.2.1
+          env:
+            - name: CALICO_ETCD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          command: ["/bin/sh","-c"]
+          args: ["/usr/local/bin/etcd --name=calico --data-dir=/var/etcd/calico-data --advertise-client-urls=http://$CALICO_ETCD_IP:6666 --listen-client-urls=http://0.0.0.0:6666 --listen-peer-urls=http://0.0.0.0:6667"]
+          volumeMounts:
+            - name: var-etcd
+              mountPath: /var/etcd
+      volumes:
+        - name: var-etcd
+          hostPath:
+            path: /var/etcd
+
+---
+
+# This manfiest installs the Service which gets traffic to the Calico
+# etcd.
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: calico-etcd
+  name: calico-etcd
+  namespace: kube-system
+spec:
+  # Select the calico-etcd pod running on the master.
+  selector:
+    k8s-app: calico-etcd
+  # This ClusterIP needs to be known in advance, since we cannot rely
+  # on DNS to get access to etcd.
+  clusterIP: 10.96.232.136
+  ports:
+    - port: 6666
+```
 
 检查各节点组件运行状态：
 
 ```bash
-[root@master ~]# kubectl get po -n=kube-system -o wide
-NAME                                    READY     STATUS    RESTARTS   AGE       IP             NODE
-dummy-2088944543-md22p                  1/1       Running   0          17m        172.16.1.101   master
-etcd-master                             1/1       Running   0          19m        172.16.1.101   master
-kube-apiserver-master                   1/1       Running   0          19m        172.16.1.101   master
-kube-controller-manager-master          1/1       Running   0          17m        172.16.1.101   master
-kube-discovery-2220406887-jqsdz         1/1       Running   0          17m        172.16.1.101   master
-kube-dns-654381707-sxjsj                3/3       Running   0          17m        10.244.0.3     master
-kube-flannel-ds-8dmw4                   2/2       Running   0          10m        172.16.1.106   minion01
-kube-flannel-ds-gljhj                   2/2       Running   0          10m        172.16.1.107   minion02
-kube-flannel-ds-kpwjd                   2/2       Running   0          10m        172.16.1.101   master
-kube-proxy-sx5l9                        1/1       Running   0          17m        172.16.1.106   minion01
-kube-proxy-59x41                        1/1       Running   0          17m        172.16.1.101   master
-kube-proxy-pn1j9                        1/1       Running   0          17m        172.16.1.107   minion02
-kube-scheduler-master                   1/1       Running   0          17m        172.16.1.101   master
+[root@master work]# kubectl get po -n=kube-system -o wide
+NAME                                       READY     STATUS    RESTARTS   AGE       IP                NODE
+calico-node-0jkjn                          2/2       Running   0          25m       172.16.1.101      master
+calico-node-w1kmx                          2/2       Running   2          25m       172.16.1.106      minion01
+calico-node-xqch6                          2/2       Running   0          25m       172.16.1.107      minion02
+calico-policy-controller-807063459-d7z47   1/1       Running   0          11m       172.16.1.107      minion02
+dummy-2088944543-qw3vr                     1/1       Running   0          29m       172.16.1.101      master
+kube-apiserver-master                      1/1       Running   0          28m       172.16.1.101      master
+kube-controller-manager-master             1/1       Running   0          29m       172.16.1.101      master
+kube-discovery-1769846148-lzlff            1/1       Running   0          29m       172.16.1.101      master
+kube-dns-2924299975-jfvrd                  4/4       Running   0          29m       192.168.228.193   master
+kube-proxy-6bk7n                           1/1       Running   0          28m       172.16.1.107      minion02
+kube-proxy-6pgqz                           1/1       Running   1          29m       172.16.1.106      minion01
+kube-proxy-7ms6m                           1/1       Running   0          29m       172.16.1.101      master
+kube-scheduler-master                      1/1       Running   0          28m       172.16.1.101      master
 ```
->说明：kube-dns需要等flannel配置完成后才是running状态。
+
+>说明：kube-dns需要等calico配置完成后才是running状态。
 
 ### 8 部署Dashboard
 
