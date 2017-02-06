@@ -434,6 +434,8 @@ Ingress可以实现使用nginx等开源的反向代理负载均衡器实现对�
 `Nginx-ingress-controller`是kubernetes官方提供的集成了Ingress-controller和Nginx的一个docker镜像。
 
 ```yaml
+apiVersion: v1
+kind: ReplicationController
 metadata:
   name: nginx-ingress-controller
   labels:
