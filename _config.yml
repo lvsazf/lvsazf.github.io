@@ -4,10 +4,10 @@
 baseurl:
 url: http://cloudnil.com
 date_format: "ordinal"
-title: VF的部落格
+title: lvsazzf的部落格
 subtitle: "Nothing is impossible..."
 description: "技术无止境,初心不忘..."
-keywords: VF,可不勺子
+keywords: lvsazf,可不勺子
 favicon: /favicon.ico
 timezone: Asia/Shanghai
 encoding: "utf-8"
@@ -82,12 +82,12 @@ collections:
         output: true
         permalink: /wiki/:path/
 
-repository: VFT/cloudnil.github.io
+repository: lvsazf/lvsazf.github.io
 
 # ---------------- #
 #      Socials     #
 # ---------------- #
-github_username: VFT
+github_username: lvsazf
 #douban_username: tiger435
 #facebook_username: 
 weibo_username: tiger435
