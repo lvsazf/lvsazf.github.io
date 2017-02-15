@@ -4,10 +4,10 @@
 baseurl:
 url: http://cloudnil.com
 date_format: "ordinal"
-title: lvsazzf的部落格
-subtitle: "Nothing is impossible..."
+title: lvsazf的部落格
+subtitle: "我爱姗姗..."
 description: "技术无止境,初心不忘..."
-keywords: lvsazf,可不勺子
+keywords: lvsazf
 favicon: /favicon.ico
 timezone: Asia/Shanghai
 encoding: "utf-8"
