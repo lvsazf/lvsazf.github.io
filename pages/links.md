@@ -10,5 +10,4 @@ permalink: /links/
 
 > God made relatives. Thank God we can choose our friends.
 
-* [VF@CSDN](http://blog.csdn.net/tiger435)
 * [码志](http://mazhuang.org)
