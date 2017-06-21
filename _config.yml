@@ -90,9 +90,9 @@ repository: lvsazf/lvsazf.github.io
 github_username: lvsazf
 #douban_username: tiger435
 #facebook_username: 
-weibo_username: tiger435
+#weibo_username: tiger435
 #zhihu_username: tiger435
-twitter_username: tiger435
+#twitter_username: tiger435
 
 # ---------------- #
 #      Comments    #
@@ -101,7 +101,7 @@ twitter_username: tiger435
 comments_provider: duoshuo
 # !!!重要!!! 请修改下面两个用户名为你自己申请的
 # !!!Important!!! Please modify usernames below to yours
-duoshuo_username: tiger435
+duoshuo_username:lvsazf 
 #disqus_username: tiger435
 # 在使用 disqus 的时候可点击显示多说评论框
 lazy_load_duoshuo: true
