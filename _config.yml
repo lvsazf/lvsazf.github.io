@@ -2,7 +2,7 @@
 #   Main Configs   #
 # ---------------- #
 baseurl:
-url: http://lvsazf.com
+url: http://lvsazf.org
 date_format: "ordinal"
 title: lvsazf的部落格
 subtitle: "我爱姗姗..."

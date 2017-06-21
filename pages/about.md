@@ -21,7 +21,7 @@ permalink: /about/
 
 * QQ：`229700801` 
 * Email：`lvsazf@gmail.com`
-* GitHub：[@VFT](https://github.com/lvsazf)
+* GitHub：[@lvsazf](https://github.com/lvsazf)
 
 ## 擅长技能
 
