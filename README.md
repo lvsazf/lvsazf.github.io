@@ -1,6 +1,6 @@
 # 码志
 
-我的个人博客：<http://cloudnil.com>，欢迎 Star 和 Fork。
+我的个人博客：<http://lvsazf.com>，欢迎 Star 和 Fork。
 
 ## 概览
 
@@ -15,9 +15,9 @@
 
 ## 效果预览
 
-**[在线预览 &rarr;](http://cloudnil.com)**
+**[在线预览 &rarr;](http://lvsazf.com)**
 
-![screenshot home](http://cloudnil.com/assets/images/screenshots/home.png)
+![screenshot home](http://lvsazf.com/assets/images/screenshots/home.png)
 
 ## Fork 指南
 
