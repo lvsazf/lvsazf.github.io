@@ -2,7 +2,7 @@
 #   Main Configs   #
 # ---------------- #
 baseurl:
-url: http://cloudnil.com
+url: http://lvsazf.com
 date_format: "ordinal"
 title: lvsazf的部落格
 subtitle: "我爱姗姗..."
@@ -11,17 +11,17 @@ keywords: lvsazf
 favicon: /favicon.ico
 timezone: Asia/Shanghai
 encoding: "utf-8"
-source_code: https://github.com/cloudnil/cloudnil.github.io
+source_code: https://github.com/lvsazf/lvsazf.github.io
 side_bar_repo_limit: 5
 
 # ---------------- #
 #      Author      #
 # ---------------- #
-author: VF
+author: lvsazf 
 organization: Cloudx5, Inc.
 organization_url: https://www.cloudx5.com
 location: Beijing, China
-email: cloudnil@126.com
+email: lvsazf@gmail.com
 
 # ---------------- #
 #    Navigation    #
