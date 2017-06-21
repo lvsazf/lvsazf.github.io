@@ -2,7 +2,7 @@
 #   Main Configs   #
 # ---------------- #
 baseurl:
-url: http://lvsazf.github.io
+url: https://lvsazf.github.io
 date_format: "ordinal"
 title: lvsazf
 subtitle: "我爱姗姗..."
