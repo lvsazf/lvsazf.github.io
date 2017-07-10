@@ -1,9 +1,9 @@
 ---
 layout: post
 title: obj.length === +obj.length 
-categories: [cate1, cate2]
+categories: [Language, cate2]
 description: some word here
-keywords: js, length
+keywords: [javascript, length]
 ---
 
 >obj.length === +obj.length 等同于 type obj.length === 'number' && !isNaN(obj.length)
