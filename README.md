@@ -1,6 +1,6 @@
 # 码志
 
-我的个人博客：<http://lvsazf.github.io>，欢迎 Star 和 Fork。
+我的个人博客：<https://lvsazf.github.io>，欢迎 Star 和 Fork。
 
 ## 概览
 
@@ -15,9 +15,7 @@
 
 ## 效果预览
 
-**[在线预览 &rarr;](http://lvsazf.github.io)**
-
-![screenshot home](http://lvsazf.github.io/assets/images/screenshots/home.png)
+**[在线预览 &rarr;](https://lvsazf.github.io)**
 
 ## Fork 指南
 
