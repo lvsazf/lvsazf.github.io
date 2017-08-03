@@ -1,10 +1,16 @@
 ---
 layout: post
 title: obj.length === +obj.length 
-categories: [cate1, cate2]
+categories: [Language]
 description: some word here
-keywords: js, length
+date: 2017-07-10 10:58:30 +0800
+keywords: [javascript, length]
 ---
+<<<<<<< HEAD
 ->js
 #obj.length === +obj.length
 obj.length === +obj.length 等同于 type obj.length === 'number' && !isNaN(obj.length)
+=======
+
+>obj.length === +obj.length 等同于 type obj.length === 'number' && !isNaN(obj.length)
+>>>>>>> 879ff544a4e828be74c8a4245c7cf9922d121213
