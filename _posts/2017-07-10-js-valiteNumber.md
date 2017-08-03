@@ -8,5 +8,6 @@ keywords: [javascript, length]
 ---
 
 ->js
+
 #obj.length === +obj.length
 obj.length === +obj.length 等同于 type obj.length === 'number' && !isNaN(obj.length)
