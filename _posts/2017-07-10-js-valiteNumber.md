@@ -1,6 +1,6 @@
 ---
 layout: post
-title: obj.length === +obj.length 
+title: obj.length 和 +obj.length 
 categories: [Language]
 description: some word here
 date: 2017-07-10 10:58:30 +0800
