@@ -4,7 +4,7 @@ title: ssh ubuntu
 categories: [Linux]
 date: 2017-08-17 10:58:30 +0800
 description: 远程ssh报Host key verification
-keywords: ubuntu, ssh
+keywords: [ubuntu, ssh]
 ---
 
 >远程ssh的时候报Host key verification faild解决办法：
