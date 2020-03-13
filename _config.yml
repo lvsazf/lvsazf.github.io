@@ -5,7 +5,7 @@ baseurl:
 url: http://lvsazf.github.io
 date_format: "ordinal"
 title: lvsazf
-subtitle: "我爱姗姗..."
+subtitle: "不忘初..."
 description: "技术无止境,初心不忘..."
 keywords: lvsazf
 favicon: /favicon.ico
@@ -98,13 +98,13 @@ github_username: lvsazf
 #      Comments    #
 # ---------------- #
 #support provider: disqus, duoshuo
-comments_provider: duoshuo
+#comments_provider: duoshuo
 # !!!重要!!! 请修改下面两个用户名为你自己申请的
 # !!!Important!!! Please modify usernames below to yours
-duoshuo_username:tiger435
+#duoshuo_username:tiger435
 #disqus_username: tiger435
 # 在使用 disqus 的时候可点击显示多说评论框
-lazy_load_duoshuo: true
+#lazy_load_duoshuo: true
 
 # ---------------- #
 #    Analytics     #
