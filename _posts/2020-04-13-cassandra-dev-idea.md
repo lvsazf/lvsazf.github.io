@@ -46,6 +46,14 @@ Cassandra的源码开发环境还是比较简单的，基本按照官方文档�
 
     3. 打开项目
 
+    4. 设置VM options
+
+    打开idea Run/Debug Configurations 在VM options添加
+    <code>-Dcassandra-foreground=yes -Dcassandra.config=file://$PROJECT_DIR$/conf/cassandra.yaml -Dcassandra.storagedir=$PROJECT_DIR$/data -Dlogback.configurationFile=$PROJECT_DIR$/conf/logback.xml -Dcassandra.logdir=$PROJECT_DIR$/data/logs -ea -Xmx1G</code>
+
+    5. 启动项目
+    打开主类，<code>org.apache.cassandra.service.CassandraDaemon</code> 运行或者Junit
+
     <code>generate-idea-files</code> 任务生成的工程几乎包含所有debug cassandra和junit单元测试
 
     * Run/debug defaults for JUnit
