@@ -2,7 +2,7 @@
 layout: post
 title:  Cassandra之应用程序查询定义（译）
 categories: [Distribution,Nosql]
-date: 2020-05-15 10:58:30 +0800
+date: 2020-04-15 10:58:30 +0800
 keywords: [Cassandra,Distribution]
 ---
 
