@@ -10,7 +10,7 @@ keywords: [Cassandra,Distribution]
 
 下面的图展示了你如何使用关系型数据库模型代表在应用程序中的数据存储。相关的模型包含若干个“join”为了实现多到多的关系，包括酒店对应兴趣点，房间对用设施，房间对应是否被占用，房间对应客人。
 
-![relational database model](../images/posts/2020-03-29-00-26-33.png)
+![relational database model](https://raw.githubusercontent.com/lvsazf/lvsazf.github.io/master/images/posts/2020-03-28-23-12-48.png)
 
 ### RDBMS和Cassandra设计上的不同
 
